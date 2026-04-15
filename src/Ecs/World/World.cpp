@@ -2,35 +2,85 @@
 
 void World::EntityComponentsChanged(const int e, const int storageId, const bool added)
 {
-    // ToDo: Логика обновления маски на сущности при изменении набора компонент на ней
+    if (!IsEntityAlive(e))
+    {
+        return;
+    }
+
+    if (added)
+    {
+        _entities[e].AddComponent(storageId);
+    }
+    else
+    {
+        _entities[e].RemoveComponent(storageId);
+    }
 }
 
 World::World()
 {
-    // ToDo: Инициализация мира и выделения памяти
+    _entities.reserve(DefaultEntitiesCapacity);
+    _freeEntities.reserve(DefaultEntitiesCapacity);
 }
 
 int World::CreateEntity()
 {
-    // ToDo: Логика создания новой сущности или переиспользования свободной сущности
+    if (!_freeEntities.empty())
+    {
+        const int e = _freeEntities.back();
+        _freeEntities.pop_back();
+        _entities[e].Recycle();
+        return e;
+    }
+
+    const int e = static_cast<int>(_entities.size());
+    _entities.emplace_back(e, 0);
+    return e;
 }
 
 void World::RemoveEntity(int e)
 {
-    // ToDo: Логика удаления сущности из мира и вычистки ее из хранилищ компонентов
+    if (!IsEntityAlive(e))
+    {
+        return;
+    }
+
+    for (const auto& storage : _componentStorages)
+    {
+        storage->Remove(e);
+    }
+
+    _entities[e].Remove();
+    _freeEntities.push_back(e);
 }
 
 EntityId World::GetPackedEntity(const int e) const
 {
-    // ToDo: Логика получения упаковонной сущности для хранения в мире
+    if (!IsEntityAlive(e))
+    {
+        return InvalidEntity;
+    }
+    return _entities[e];
 }
 
 bool World::UnpackEntity(const EntityId &eId, int &e) const
 {
-    // ToDo: Логика распаковки и валидации сущности
+    const int unpacked = eId.Id;
+    if (unpacked < 0 || unpacked >= static_cast<int>(_entities.size()))
+    {
+        return false;
+    }
+
+    if (!_entities[unpacked].Equals(eId) || _entities[unpacked].IsRemoved())
+    {
+        return false;
+    }
+
+    e = unpacked;
+    return true;
 }
 
 bool World::IsEntityAlive(const int e) const
 {
-    // ToDo: Логика проверки жива сущность и корректна или нет
+    return e >= 0 && e < static_cast<int>(_entities.size()) && !_entities[e].IsRemoved();
 }

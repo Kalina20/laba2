@@ -1,21 +1,43 @@
 #include "SystemsManager.h"
 
+SystemsManager::SystemsManager(World &world) : _world(world)
+{
+}
+
 SystemsManager& SystemsManager::AddInitializer(std::shared_ptr<IInitializer> initializer)
 {
-    // ToDo: Логика добавления системы-инициализатора в менеджер
+    _newInitializers.push_back(std::move(initializer));
+    return *this;
 }
 
 SystemsManager& SystemsManager::AddSystem(std::shared_ptr<ISystem> system)
 {
-    // ToDo: Логика добавления системы в менеджер
+    AddInitializer(system);
+    _systems.push_back(std::move(system));
+    return *this;
 }
 
 void SystemsManager::Initialize()
 {
-    // ToDo: Логика вызова метода Initialize у еще не вызывавшихся инициализаторов
+    if (_newInitializers.empty())
+    {
+        return;
+    }
+
+    for (const auto& initializer : _newInitializers)
+    {
+        initializer->OnInit();
+        _initializers.push_back(initializer);
+    }
+    _newInitializers.clear();
 }
 
 void SystemsManager::Update()
 {
-    // ToDo: Логика вызова метода Update у систем
+    Initialize();
+
+    for (const auto& system : _systems)
+    {
+        system->OnUpdate();
+    }
 }

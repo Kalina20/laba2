@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <memory>
+#include <typeinfo>
 
 #include "IWorldInternal.h"
 #include "../Entity/EntityId.h"
@@ -35,15 +36,23 @@ public:
     template <typename T>
     std::shared_ptr<ComponentStorage<T>> GetRawStorage()
     {
-        // ToDo: Логика получения указателя на хранилище по его типу из мапы
-        // или создания хранилища, если его еще нет
+        const size_t hash = typeid(T).hash_code();
+        const auto it = _componentStoragesHash.find(hash);
+        if (it != _componentStoragesHash.end())
+        {
+            return std::static_pointer_cast<ComponentStorage<T>>(it->second);
+        }
+
+        auto storage = std::make_shared<ComponentStorage<T>>(*this, _storagesCount++);
+        _componentStoragesHash[hash] = storage;
+        _componentStorages.push_back(storage);
+        return storage;
     }
 
     template <typename T>
     ComponentStorage<T>& GetStorage()
     {
-        // ToDo: Логика получения ссылки на хранилище по его типу из мапы
-        // или создания хранилища, если его еще нет
+        return *GetRawStorage<T>();
     }
 };
 

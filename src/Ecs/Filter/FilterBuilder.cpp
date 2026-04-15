@@ -2,5 +2,5 @@
 
 Filter FilterBuilder::Build() const
 {
-    // ToDo: Создание фильтра с указанным миром и хранилищами компонентов
+    return Filter(_world, _componentStorages);
 }
