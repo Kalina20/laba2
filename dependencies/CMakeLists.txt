@@ -6,6 +6,7 @@ set(IMGUI_SFML_VERSION 3.0)
 
 # It's nice to get stripped-down release zips instead of cloning
 # a repo and checking out a tag
+
 FetchContent_Declare(
   SFML
   URL "https://github.com/SFML/SFML/archive/${SFML_VERSION}.zip"

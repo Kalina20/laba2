@@ -102,7 +102,12 @@ Filter::Iterator& Filter::Iterator::operator++()
 
 bool Filter::Iterator::operator!=(const Iterator &other) const
 {
-    return _current != other._current || &_world != &other._world;
+    return !(*this == other);
+}
+
+bool Filter::Iterator::operator==(const Iterator &other) const
+{
+    return _current == other._current && &_world == &other._world;
 }
 
 Filter::Iterator Filter::begin()
@@ -117,6 +122,11 @@ Filter::Iterator Filter::begin()
     return Iterator(_world, _componentStorages, _componentStorages[_minStorageIndex]->Entities(), _minStorageIndex, 0);
 }
 
+Filter::Iterator Filter::begin() const
+{
+    return const_cast<Filter*>(this)->begin();
+}
+
 Filter::Iterator Filter::end()
 {
     if (_minStorageIndex == std::numeric_limits<size_t>::max())
@@ -127,4 +137,9 @@ Filter::Iterator Filter::end()
 
     const auto minEntities = _componentStorages[_minStorageIndex]->Entities();
     return Iterator(_world, _componentStorages, minEntities, _minStorageIndex, minEntities.size());
+}
+
+Filter::Iterator Filter::end() const
+{
+    return const_cast<Filter*>(this)->end();
 }

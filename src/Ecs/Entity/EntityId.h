@@ -5,20 +5,20 @@
 #include <vector>
 
 class EntityId {
-    std::vector<int> _components;
+    std::vector<bool> _componentMask;
     int _gen;
 
 public:
     const int Id;
 
-    // ToDo:
     EntityId(const int id, const int gen);
 
     void AddComponent(int component);
     int RemoveComponent(int component);
+    bool HasComponent(int component) const;
 
     bool IsRemoved() const;
-    const std::vector<int>& Components() const;
+    const std::vector<bool>& Components() const;
     int Gen() const;
 
     void Remove();

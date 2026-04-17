@@ -49,12 +49,15 @@ public:
 
         Iterator& operator++();
 
+        bool operator==(const Iterator& other) const;
         bool operator!=(const Iterator& other) const;
     };
 
     Iterator begin();
+    Iterator begin() const;
 
     Iterator end();
+    Iterator end() const;
 };
 
 #endif //FILTER_H

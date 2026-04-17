@@ -80,6 +80,27 @@ bool World::UnpackEntity(const EntityId &eId, int &e) const
     return true;
 }
 
+std::vector<int> World::GetAliveEntities() const
+{
+    std::vector<int> aliveEntities;
+    aliveEntities.reserve(_entities.size() - _freeEntities.size());
+
+    for (int entity = 0; entity < static_cast<int>(_entities.size()); ++entity)
+    {
+        if (IsEntityAlive(entity))
+        {
+            aliveEntities.push_back(entity);
+        }
+    }
+
+    return aliveEntities;
+}
+
+const std::vector<std::shared_ptr<BaseComponentStorage>>& World::GetStorages() const
+{
+    return _componentStorages;
+}
+
 bool World::IsEntityAlive(const int e) const
 {
     return e >= 0 && e < static_cast<int>(_entities.size()) && !_entities[e].IsRemoved();

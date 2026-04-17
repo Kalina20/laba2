@@ -29,6 +29,8 @@ public:
 
     EntityId GetPackedEntity(int e) const;
     bool UnpackEntity(const EntityId& eId, int& e) const;
+    std::vector<int> GetAliveEntities() const;
+    const std::vector<std::shared_ptr<BaseComponentStorage>>& GetStorages() const;
 
     bool IsEntityAlive(int e) const override;
     void EntityComponentsChanged(int e, int storageId, bool added) override;

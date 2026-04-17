@@ -6,30 +6,37 @@ EntityId::EntityId(const int id, const int gen) : _gen(gen), Id(id)
 
 void EntityId::AddComponent(const int component)
 {
-    for (const int existing : _components)
+    if (component < 0)
     {
-        if (existing == component)
-        {
-            return;
-        }
+        return;
     }
-    _components.push_back(component);
+
+    if (component >= static_cast<int>(_componentMask.size()))
+    {
+        _componentMask.resize(component + 1, false);
+    }
+    _componentMask[component] = true;
 }
 
 int EntityId::RemoveComponent(const int component)
 {
-    for (size_t i = 0; i < _components.size(); ++i)
+    if (component < 0 || component >= static_cast<int>(_componentMask.size()))
     {
-        if (_components[i] == component)
-        {
-            const int removed = _components[i];
-            _components[i] = _components.back();
-            _components.pop_back();
-            return removed;
-        }
+        return -1;
+    }
+
+    if (_componentMask[component])
+    {
+        _componentMask[component] = false;
+        return component;
     }
 
     return -1;
+}
+
+bool EntityId::HasComponent(const int component) const
+{
+    return component >= 0 && component < static_cast<int>(_componentMask.size()) && _componentMask[component];
 }
 
 bool EntityId::IsRemoved() const
@@ -37,9 +44,9 @@ bool EntityId::IsRemoved() const
     return _gen < 0;
 }
 
-const std::vector<int>& EntityId::Components() const
+const std::vector<bool>& EntityId::Components() const
 {
-    return _components;
+    return _componentMask;
 }
 
 int EntityId::Gen() const
@@ -53,7 +60,7 @@ void EntityId::Remove()
     {
         _gen = -_gen - 1;
     }
-    _components.clear();
+    _componentMask.clear();
 }
 
 void EntityId::Recycle()
@@ -81,6 +88,15 @@ bool EntityId::operator!=(const EntityId &other) const
 
 std::ostream& operator<<(std::ostream &os, const EntityId &eId)
 {
-    os << "EntityId{id=" << eId.Id << ", gen=" << eId.Gen() << ", removed=" << (eId.IsRemoved() ? "true" : "false") << "}";
+    int activeComponents = 0;
+    for (const bool hasComponent : eId.Components())
+    {
+        activeComponents += hasComponent ? 1 : 0;
+    }
+
+    os << "EntityId{id=" << eId.Id
+       << ", gen=" << eId.Gen()
+       << ", removed=" << (eId.IsRemoved() ? "true" : "false")
+       << ", components=" << activeComponents << "}";
     return os;
 }

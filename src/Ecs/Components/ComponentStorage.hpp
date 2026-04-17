@@ -22,6 +22,7 @@ class ComponentStorage final : public BaseComponentStorage {
 
     void Resize(const int sparseSize, const int dataSize)
     {
+        // перевыделение памяти под вектора
         if (sparseSize > static_cast<int>(_sparse.size()))
         {
             _sparse.resize(sparseSize, -1);
@@ -37,11 +38,13 @@ class ComponentStorage final : public BaseComponentStorage {
 public:
     ComponentStorage(internal::IWorldInternal& w, const int id) : _world(w), _id(id)
     {
+
         Resize(64, 64);
     }
 
     bool Has(const int e) const override
     {
+        // Проверка наличия компонента на сущности
         if (e < 0 || e >= static_cast<int>(_sparse.size()))
         {
             return false;
@@ -53,6 +56,7 @@ public:
 
     T& Get(const int e)
     {
+        // Получение компонента с сущности
         if (!Has(e))
         {
             throw std::out_of_range("Component does not exist on entity");
@@ -62,6 +66,9 @@ public:
 
     T& Add(const int e, const T& value)
     {
+        //  Проверка необходимости ресайза
+        //  Добавление компонента на сущность
+        // Уведомление мира об изменении набора компонентов на сущности
         if (e < 0)
         {
             throw std::out_of_range("Entity id must be non-negative");
@@ -94,6 +101,9 @@ public:
 
     void Remove(const int e) override
     {
+        // FastRemove компонента с сущности
+
+        // Уведомление мира об изменении набора компонентов на сущности
         if (!Has(e))
         {
             return;
@@ -116,10 +126,12 @@ public:
 
     std::span<const T> All() const
     {
+        // возврат всех компонентов данного типа
         return std::span<const T>(_data.data(), static_cast<size_t>(_count));
     }
     std::span<const int> Entities() const override
     {
+        // возврат всех сущностей с компонентом данного типа
         return std::span<const int>(_dense.data(), static_cast<size_t>(_count));
     }
 
