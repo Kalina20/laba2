@@ -1,41 +1,47 @@
 #ifndef MOVEMENTSYSTEM_H
 #define MOVEMENTSYSTEM_H
 
-#include "../../Ecs/Filter/Filter.h"
 #include "../../Ecs/Filter/FilterBuilder.h"
 #include "../../Ecs/Systems/ISystem.h"
 
-#include "../Components/MoveInputEvent.h"
-#include "../Components/PositionComponent.h"
 #include "../Components/MovementComponent.h"
+#include "../Components/PlayerComponent.h"
+#include "../Components/TransformComponent.h"
 
 class MovementSystem final : public ISystem {
-    ComponentStorage<PositionComponent>& _positionComponents;
+    ComponentStorage<TransformComponent>& _transformComponents;
     ComponentStorage<MovementComponent>& _movementComponents;
+    ComponentStorage<PlayerComponent>& _playerComponents;
 
-    Filter _moveables;
-    Filter _moveInputEvents;
+    float _windowWidth;
 
-    void Print(int ent);  // Это тоже можно вынести в отдельную систему
+    Filter _movables;
+    Filter _players;
+
+    void ClampPlayerToBounds(int playerEntity) const;
 
 public:
-    MovementSystem(World &world)
+    MovementSystem(World &world, const float windowWidth)
         : ISystem(world),
-            _positionComponents(world.GetStorage<PositionComponent>()),
+            _transformComponents(world.GetStorage<TransformComponent>()),
             _movementComponents(world.GetStorage<MovementComponent>()),
-            _moveables(FilterBuilder(world)
-                .With<PositionComponent>()
+            _playerComponents(world.GetStorage<PlayerComponent>()),
+            _windowWidth(windowWidth),
+            _movables(FilterBuilder(world)
+                .With<TransformComponent>()
                 .With<MovementComponent>()
                 .Build()),
-            _moveInputEvents(FilterBuilder(world)
-                .With<MoveInputEvent>()
+            _players(FilterBuilder(world)
+                .With<PlayerComponent>()
+                .With<TransformComponent>()
+                .With<MovementComponent>()
                 .Build())
     {
     }
 
     void OnInit() override;
 
-    void OnUpdate() override;
+    void OnUpdate(float deltaTimeSeconds) override;
 };
 
 #endif //MOVEMENTSYSTEM_H

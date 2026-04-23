@@ -5,8 +5,8 @@
 
 struct MovementComponent
 {
-    float Speed;
-    sf::Vector2f Direction;
+    sf::Vector2f Direction{0.0f, 0.0f};
+    float Speed = 0.0f;
 };
 
 #endif //MOVEMENTCOMPONENT_H

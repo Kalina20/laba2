@@ -9,7 +9,13 @@ public:
     explicit ISystem(World &world) : IInitializer(world) {}
 
     ~ISystem() override = default;
-    virtual void OnUpdate() = 0;
+    virtual void OnUpdate() {}
+
+    virtual void OnUpdate(float deltaTimeSeconds)
+    {
+        (void)deltaTimeSeconds;
+        OnUpdate();
+    }
 };
 
 #endif //ISYSTEM_H

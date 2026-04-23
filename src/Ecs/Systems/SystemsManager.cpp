@@ -34,10 +34,15 @@ void SystemsManager::Initialize()
 
 void SystemsManager::Update()
 {
+    Update(0.0f);
+}
+
+void SystemsManager::Update(const float deltaTimeSeconds)
+{
     Initialize();
 
     for (const auto& system : _systems)
     {
-        system->OnUpdate();
+        system->OnUpdate(deltaTimeSeconds);
     }
 }

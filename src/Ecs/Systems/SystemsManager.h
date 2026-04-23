@@ -23,6 +23,7 @@ public:
 
     void Initialize();
     void Update();
+    void Update(float deltaTimeSeconds);
 };
 
 

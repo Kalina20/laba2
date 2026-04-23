@@ -1,32 +1,33 @@
 #include "MovementSystem.h"
 
-void MovementSystem::Print(int ent)
-{
-    auto& position = _positionComponents.Get(ent);
-
-    std::cout << ent << " Pos: " << position.X << ", " << position.Y << std::endl;
-}
+#include <algorithm>
 
 void MovementSystem::OnInit()
 {
 
 }
 
-void MovementSystem::OnUpdate()
+void MovementSystem::ClampPlayerToBounds(const int playerEntity) const
 {
-    for (const auto event : _moveInputEvents)
+    auto& transform = _transformComponents.Get(playerEntity);
+
+    constexpr float halfWidth = 28.0f;
+    const float minX = halfWidth;
+    const float maxX = std::max(minX, _windowWidth - halfWidth);
+    transform.Position.x = std::clamp(transform.Position.x, minX, maxX);
+}
+
+void MovementSystem::OnUpdate(const float deltaTimeSeconds)
+{
+    for (const int entity : _movables)
     {
-        for (const auto ent : _moveables)
-        {
-            auto& position = _positionComponents.Get(ent);
-            auto& movement = _movementComponents.Get(ent);
+        auto& transform = _transformComponents.Get(entity);
+        const auto& movement = _movementComponents.Get(entity);
+        transform.Position += movement.Direction * movement.Speed * deltaTimeSeconds;
+    }
 
-            position.X += movement.Speed * movement.Direction.x;
-            position.Y += movement.Speed * movement.Direction.y;
-
-            Print(ent);
-        }
-
-        world.RemoveEntity(event);
+    for (const int playerEntity : _players)
+    {
+        ClampPlayerToBounds(playerEntity);
     }
 }

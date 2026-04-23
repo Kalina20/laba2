@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <typeinfo>
+#include <utility>
 
 #include "IWorldInternal.h"
 #include "../Entity/EntityId.h"
@@ -13,8 +14,8 @@
 class World final : public internal::IWorldInternal {
     const int DefaultEntitiesCapacity = 64;
 
-    std::vector<EntityId> _entities;
-    std::vector<int> _freeEntities;
+    std::vector<EntityId> _entities; //?
+    std::vector<int> _freeEntities; //?
 
     std::unordered_map<size_t, std::shared_ptr<BaseComponentStorage>> _componentStoragesHash;
     std::vector<std::shared_ptr<BaseComponentStorage>> _componentStorages;
@@ -55,6 +56,27 @@ public:
     ComponentStorage<T>& GetStorage()
     {
         return *GetRawStorage<T>();
+    }
+
+    template <typename T, typename... TArgs>
+    int CreateEvent(TArgs&&... args)
+    {
+        const int eventEntity = CreateEntity();
+        GetStorage<T>().Add(eventEntity, T{std::forward<TArgs>(args)...});
+        return eventEntity;
+    }
+
+    template <typename T>
+    void ClearEvents()
+    {
+        auto& storage = GetStorage<T>();
+        const auto entities = storage.Entities();
+        std::vector<int> toRemove(entities.begin(), entities.end());
+
+        for (const int entity : toRemove)
+        {
+            RemoveEntity(entity);
+        }
     }
 };
 
