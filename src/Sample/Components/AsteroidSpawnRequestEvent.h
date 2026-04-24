@@ -1,0 +1,8 @@
+#ifndef ASTEROIDSPAWNREQUESTEVENT_H
+#define ASTEROIDSPAWNREQUESTEVENT_H
+
+struct AsteroidSpawnRequestEvent
+{
+};
+
+#endif //ASTEROIDSPAWNREQUESTEVENT_H
